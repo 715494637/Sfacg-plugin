@@ -1,7 +1,6 @@
 import plugin from "../../../lib/plugins/plugin.js";
 import { SfacgAPI } from "../lib/SfacgAPI.js";
 import { SfacgDownloader } from "../lib/SfacgDownload.js";
-import Commen from "../../../lib/common/common.js";
 import { Gfs } from "icqq";
 
 /**
@@ -82,9 +81,8 @@ export class Sfacgplugin extends plugin {
             await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
             this.reply("SF上传失败\n" + e);
         }
-	}
+    }
 
-	
     GetAccount = async () => {
         if (this.e.group_id) {
             return;
@@ -130,23 +128,23 @@ export class Sfacgplugin extends plugin {
         } else {
             this.setContext("GetAccount", false);
             this.reply(
-                `请私聊发送SF账号|Sfcookie\n格式如：\n"12345678---abc1234"\n"cookie---xxx"`,
+                `请【私聊发送】SF账号|Sfcookie\n格式如：\n"12345678---abc1234"\n"cookie---xxx"`,
                 true
             );
             this.reply("---");
         }
     };
     async PublishBook() {
-        const name = this.e.msg.match(new RegExp("^提书(.*)"))[1];
-        if (!name) {
+        const n = this.e.msg.match(new RegExp("^提书(.*)"))[1];
+        if (!n) {
             return this.reply(`请发送提书"小说名称"`);
         }
-        const books = await this.noCookie.searchInfos(name);
-        if (books.length === 0) {
+        const b = await this.noCookie.searchInfos(n);
+        if (b.length === 0) {
             return this.reply("未搜到小说");
         }
-        BookMap.set(this.e.user_id, books);
-        this.reply(books.map((s, i) => `${i + 1}. ${s.novelName}---${s.authorName}`).join("\n"));
+        BookMap.set(this.e.user_id, b);
+        this.reply(b.map((s, i) => `${i + 1}. ${s.novelName}---${s.authorName}`).join("\n"));
         this.setContext("GetBookId", false);
         this.reply("请发送序号");
     }
@@ -191,7 +189,6 @@ export class Sfacgplugin extends plugin {
                 success.push(Number(op));
             }
         }
-
         voteResults.set(this.e.user_id, userOptionArray);
         this.reply(`投票成功\n成功投票: ${success}\n无效投票: ${invalid}\n重复投票: ${repeat}`);
         return this.reply(this.calculateVoteResult());

@@ -1,0 +1,11 @@
+﻿# supabase基础信息
+SUPABASE_URL: string;
+SUPABASE_ANON_KEY: string;
+SUPABASE_SERVICE_KEY: string;
+
+# 接码账号密码
+SMS_USERNAME: string;
+SMS_PASSWORD: string;
+
+# 注册机密码
+REGIST_PASSWORD: string;

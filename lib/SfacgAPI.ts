@@ -10,7 +10,6 @@ import {
     codeverify,
     contentInfos,
     expireInfo,
-    IadBonusNum,
     nameAvalible,
     NewAccountFavBonus,
     NewAccountFollowBonus,
@@ -238,7 +237,7 @@ class SfacgAPI extends SfacgBaseHttp {
      * @param page 页数
      * @returns 小说分类主页
      */
-    async novels(page: number, isfinish: "both" | "is" | "not" = "both"): Promise<novelInfo[]> {
+    async novels(page: number, isfinish: "both" | "is" | "not" = "is"): Promise<novelInfo[]> {
         return await this.get<novelInfo[]>(`/novels/0/sysTags/novels`, {
             page: page,
             updatedays: "-1",
@@ -276,7 +275,7 @@ class SfacgAPI extends SfacgBaseHttp {
      * 广告次数信息
      * @returns 广告次数信息
      */
-    async adBonusNum(): Promise<IadBonusNum> {
+    async adBonusNum(): Promise<adBonusNum> {
         const res = await this.get<adBonusNum[]>(`user/tasks`, {
             taskCategory: 5,
             package: "com.sfacg",
@@ -284,11 +283,7 @@ class SfacgAPI extends SfacgBaseHttp {
             page: 0,
             size: 20,
         });
-        return {
-            requireNum: res[0].requireNum,
-            taskId: res[0].taskId,
-            completeNum: res[0].completeNum,
-        };
+        return res[0];
     }
 
     /**
@@ -461,7 +456,7 @@ class SfacgAPI extends SfacgBaseHttp {
         passWord: string,
         nickName: string,
         phone: string,
-        smsAuthCode: number
+        smsAuthCode: string
     ): Promise<number> {
         let res = await this.post<regist>("/user", {
             passWord: passWord,

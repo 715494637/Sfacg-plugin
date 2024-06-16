@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 // 生成随机昵称
 export function RandomName() {
-	// 生成随机六位汉字+字母+数字组合的代码
 	const random = (min: number, max: number) =>
 		Math.floor(Math.random() * (max - min) + min);
 	const randomChar = (length: number) => {
