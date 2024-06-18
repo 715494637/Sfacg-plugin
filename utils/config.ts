@@ -10,7 +10,7 @@ interface Config {
 }
 
 const _path = process.cwd();
-const _configPath = `${_path}}/plugins/Sfacg-plugin/config.yaml`;
+const _configPath = `${_path}/plugins/Sfacg-plugin/config.yaml`;
 const SfacgConfig: Config = YAML.parse(fs.readFileSync(_configPath, `utf-8`));
 
 export { SfacgConfig };

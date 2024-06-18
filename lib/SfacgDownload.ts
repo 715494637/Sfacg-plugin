@@ -120,93 +120,93 @@ export class SfacgDownloader {
     async EpubMake() {}
 }
 
-export class cf_SfacgDownloader extends SfacgDownloader {
-    async cf_JsonMake() {
-        await this.GetNovelInfo();
-        await this.GetVolume();
-        await this.cf_DownLoad();
-        return {
-            ...this.JsonHead,
-            ...{ content: this.JsonVolume },
-        } as JsonBook;
-    }
+// export class cf_SfacgDownloader extends SfacgDownloader {
+//     async cf_JsonMake() {
+//         await this.GetNovelInfo();
+//         await this.GetVolume();
+//         await this.cf_DownLoad();
+//         return {
+//             ...this.JsonHead,
+//             ...{ content: this.JsonVolume },
+//         } as JsonBook;
+//     }
 
-    async cf_TxtMake() {
-        const Json = await this.cf_JsonMake();
-        return {
-            novelName: this.JsonHead?.title,
-            data: JsonToTxt(Json),
-        };
-    }
+//     async cf_TxtMake() {
+//         const Json = await this.cf_JsonMake();
+//         return {
+//             novelName: this.JsonHead?.title,
+//             data: JsonToTxt(Json),
+//         };
+//     }
 
-    private async cf_DownLoad(limit: number = 50): Promise<void> {
-        const list = this.cf_RetrieveBatches();
-        let p: any[] = [];
-        for (let i = 0; i < list.length; i += limit) {
-            p.push(
-                fetch("https://handle.bibyui11.workers.dev/handle/DownLoad", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        init: this.init,
-                        data: list.slice(i, i + limit),
-                    }),
-                })
-            );
-        }
-        const r = await Promise.all(p);
-        const bj = await Promise.all(r.map((res) => res.json()));
-        const ba = bj.flatMap((result) => result);
-        this.JsonVolume = this.cf_Batches_To_JsonVolume(ba as Batche[]);
-    }
-    private cf_Batches_To_JsonVolume(list: Batche[]): JsonVolume[] {
-        const JV: Record<string, JsonVolume> = {};
-        list.forEach((i) => {
-            if (!JV[i.vtitle]) {
-                JV[i.vtitle] = { vtitle: i.vtitle, chapters: [] };
-            }
-            JV[i.vtitle].chapters.push({ ctitle: i.ctitle, data: i.data });
-        });
-        return Object.values(JV);
-    }
+//     private async cf_DownLoad(limit: number = 50): Promise<void> {
+//         const list = this.cf_RetrieveBatches();
+//         let p: any[] = [];
+//         for (let i = 0; i < list.length; i += limit) {
+//             p.push(
+//                 fetch("https://handle.bibyui11.workers.dev/handle/DownLoad", {
+//                     method: "POST",
+//                     body: JSON.stringify({
+//                         init: this.init,
+//                         data: list.slice(i, i + limit),
+//                     }),
+//                 })
+//             );
+//         }
+//         const r = await Promise.all(p);
+//         const bj = await Promise.all(r.map((res) => res.json()));
+//         const ba = bj.flatMap((result) => result);
+//         this.JsonVolume = this.cf_Batches_To_JsonVolume(ba as Batche[]);
+//     }
+//     private cf_Batches_To_JsonVolume(list: Batche[]): JsonVolume[] {
+//         const JV: Record<string, JsonVolume> = {};
+//         list.forEach((i) => {
+//             if (!JV[i.vtitle]) {
+//                 JV[i.vtitle] = { vtitle: i.vtitle, chapters: [] };
+//             }
+//             JV[i.vtitle].chapters.push({ ctitle: i.ctitle, data: i.data });
+//         });
+//         return Object.values(JV);
+//     }
 
-    private cf_RetrieveBatches() {
-        return this.Volume.flatMap((v) =>
-            v.chapterList.map((c) => ({
-                vtitle: v.title,
-                ctitle: c.ntitle,
-                chapId: c.chapId,
-                data: "",
-                isVip: c.isVip,
-                needFireMoney: c.needFireMoney,
-            }))
-        ) as Batche[];
-    }
+//     private cf_RetrieveBatches() {
+//         return this.Volume.flatMap((v) =>
+//             v.chapterList.map((c) => ({
+//                 vtitle: v.title,
+//                 ctitle: c.ntitle,
+//                 chapId: c.chapId,
+//                 data: "",
+//                 isVip: c.isVip,
+//                 needFireMoney: c.needFireMoney,
+//             }))
+//         ) as Batche[];
+//     }
 
-    async cf_Handle_DataGet(NoDataList: Batche[]) {
-        const p = NoDataList.map(async (c) => {
-            if (!c.isVip) {
-                const data = await this.DownLoadFree(c);
-                console.log("Free Download: " + c.ctitle);
-                return {
-                    ...c,
-                    data: data,
-                } as Batche;
-            } else if (c.ctitle === "DatabaseDownLoad") {
-                const data = await this.DownLoadUserVip(c);
-                console.log("Database Vip Download: " + c.ctitle);
-                return {
-                    ...c,
-                    data: data,
-                } as Batche;
-            } else if (c.isVip && !c.needFireMoney) {
-                const data = await this.DownLoadUserVip(c);
-                console.log("User Vip Download: " + c.ctitle);
-                return {
-                    ...c,
-                    data: data,
-                } as Batche;
-            }
-        });
-        return (await Promise.all(p)).filter(Boolean) as Batche[];
-    }
-}
+//     async cf_Handle_DataGet(NoDataList: Batche[]) {
+//         const p = NoDataList.map(async (c) => {
+//             if (!c.isVip) {
+//                 const data = await this.DownLoadFree(c);
+//                 console.log("Free Download: " + c.ctitle);
+//                 return {
+//                     ...c,
+//                     data: data,
+//                 } as Batche;
+//             } else if (c.ctitle === "DatabaseDownLoad") {
+//                 const data = await this.DownLoadUserVip(c);
+//                 console.log("Database Vip Download: " + c.ctitle);
+//                 return {
+//                     ...c,
+//                     data: data,
+//                 } as Batche;
+//             } else if (c.isVip && !c.needFireMoney) {
+//                 const data = await this.DownLoadUserVip(c);
+//                 console.log("User Vip Download: " + c.ctitle);
+//                 return {
+//                     ...c,
+//                     data: data,
+//                 } as Batche;
+//             }
+//         });
+//         return (await Promise.all(p)).filter(Boolean) as Batche[];
+//     }
+// }

@@ -1,6 +1,8 @@
 import plugin from "../../../lib/plugins/plugin.js";
 import { SfacgAPI } from "../lib/SfacgAPI.js";
 import { SfacgDownloader } from "../lib/SfacgDownload.js";
+import { SfacgRegister } from "../lib/SfacgRegist.js";
+import Common from "../../../lib/common/common.js";
 import { Gfs } from "icqq";
 
 /**
@@ -59,7 +61,7 @@ export class Sfacgplugin extends plugin {
                 },
                 {
                     /** 命令正则匹配 */
-                    reg: "^SF创号",
+                    reg: "^SF创号(\\d+)",
                     /** 执行方法 */
                     fnc: "Regist",
                 },
@@ -79,7 +81,7 @@ export class Sfacgplugin extends plugin {
             await gfs.upload(Buffer.from(txt.data), undefined, `${txt.novelName}.txt`);
         } catch (e) {
             await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
-            this.reply("SF上传失败\n" + e);
+            this.reply("SF上传失败\n" + JSON.stringify(e));
         }
     }
 
@@ -89,7 +91,7 @@ export class Sfacgplugin extends plugin {
         }
         let Sfcookie;
         this.finish("GetAccount");
-        let accArray = this.e.msg.split("---");
+        let accArray = this.e.msg.replaceAll(`"`, "").split("---");
         if (accArray.length !== 2) {
             this.reply("SF账号格式错误");
             return;
@@ -109,7 +111,7 @@ export class Sfacgplugin extends plugin {
             await this.UploadBook(BookIDMap.get(this.e.user_id).novelId, Sfcookie);
         } catch (e) {
             await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
-            this.reply("SF登录失败\n" + e);
+            this.reply("SF登录失败\n" + JSON.stringify(e));
         }
     };
 
@@ -128,7 +130,7 @@ export class Sfacgplugin extends plugin {
         } else {
             this.setContext("GetAccount", false);
             this.reply(
-                `请【私聊发送】SF账号|Sfcookie\n格式如：\n"12345678---abc1234"\n"cookie---xxx"`,
+                `请【私聊发送】SF账号\n格式如：\n"12345678---abc1234"\n"cookie---xxx"`,
                 true
             );
             this.reply("---");
@@ -144,23 +146,34 @@ export class Sfacgplugin extends plugin {
             return this.reply("未搜到小说");
         }
         BookMap.set(this.e.user_id, b);
-        this.reply(b.map((s, i) => `${i + 1}. ${s.novelName}---${s.authorName}`).join("\n"));
+        this.reply(
+            Common.makeForwardMsg(this.e, [
+                "请发送序号",
+                b.map((s, i) => `${i + 1}. ${s.novelName}---${s.authorName}`).join("\n"),
+            ])
+        );
         this.setContext("GetBookId", false);
-        this.reply("请发送序号");
     }
     //
     async InitVote() {
         const Sfacg = new SfacgAPI();
         Options = await Sfacg.novels(0);
         await this.reply(
-            "请发送要投票的序号\n" +
-                Options.map((i, index) => `${index + 1}. ${`${this.format(i, 0)}`}`).join("\n") +
-                "\n以上均为5折后的价格",
-            false
+            Common.makeForwardMsg(this.e, [
+                "以下为投票内容\n请发送【投票+序号】\n如【投票1，2，3】",
+                Options.map((i, index) => `${index + 1}. ${`${this.format(i, 0)}`}`).join("\n"),
+                "以上均为5折后的价格",
+            ])
         );
     }
     async endVote() {
-        await this.reply("已结束投票，投票结果为\n" + this.calculateVoteResult());
+        await this.reply(
+            Common.makeForwardMsg(this.e, [
+                "投票结果：",
+                this.calculateVoteResult(),
+                "以上均为5折后的价格",
+            ])
+        );
         Options = [];
         voteResults.clear();
     }
@@ -181,21 +194,30 @@ export class Sfacgplugin extends plugin {
 
         for (let op of matchArray) {
             if (userOptionArray.includes(Number(op))) {
-                repeat += Number(op);
+                repeat.push(Number(op));
             } else if (!(0 < Number(op) < Options.length)) {
-                invalid += Number(op);
+                invalid.push(Number(op));
             } else {
                 userOptionArray.push(Number(op));
                 success.push(Number(op));
             }
         }
         voteResults.set(this.e.user_id, userOptionArray);
-        this.reply(`投票成功\n成功投票: ${success}\n无效投票: ${invalid}\n重复投票: ${repeat}`);
-        return this.reply(this.calculateVoteResult());
+        return this.reply(
+            Common.makeForwardMsg(this.e, [
+                `${
+                    success.length !== 0 && "投票成功\n"
+                } 成功投票: ${success}\n无效投票: ${invalid}\n重复投票: ${repeat}`,
+                this.calculateVoteResult(),
+                "以上均为5折后的价格",
+            ])
+        );
     }
 
     async Regist() {
-        const Sfacg = new SfacgAPI();
+        const Register = new SfacgRegister();
+        const a = await Register.Main(this.e.msg.match(new RegExp("^SF创号(\\d+)"))[1]);
+        this.reply(a)
     }
 
     format = (info, count) => {
@@ -244,6 +266,6 @@ export class Sfacgplugin extends plugin {
     //         const gfs = new Gfs(this.e.bot, this.e.group_id);
     //         const files = await gfs.dir();
     //         const r = files.map((f) => chineseDescriptions(f));
-    //         await this.reply(await Commen.makeForwardMsg(this.e, r));
+    //         await this.reply(await Commen.Common.makeForwardMsg(this.e, r));
     //     }
 }
