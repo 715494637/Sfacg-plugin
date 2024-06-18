@@ -6,6 +6,7 @@ interface Config {
     SUPABASE_SERVICE_KEY: string;
     SMS_USERNAME: string;
     SMS_PASSWORD: string;
+    SMS_TIMEOUT: number;
     REGIST_PASSWORD: string;
 }
 

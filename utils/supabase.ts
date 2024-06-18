@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import  {SfacgConfig}  from "./config";
+import  {SfacgConfig}  from "./config.js";
 
 const SupaBase = createClient<Database>(SfacgConfig.SUPABASE_URL, SfacgConfig.SUPABASE_SERVICE_KEY);
 

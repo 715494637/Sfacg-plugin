@@ -5,67 +5,57 @@ class SmsService {
     private u: string;
     private p: string;
     private tk: string;
-    private sid: number;
+    private pid: number;
     private phone: string;
 
     constructor() {
-        this.sid = sid.Sfacg;
-        this.host = "https://api.haozhuma.com";
+        this.pid = pid.Sfacg;
+        this.host = "http://api.sqhyw.net:90/api";
         this.u = SfacgConfig.SMS_USERNAME;
         this.p = SfacgConfig.SMS_PASSWORD;
     }
 
     async getToken() {
-        const toUrlEncoded = (obj: any) =>
-            Object.keys(obj)
-                .map((key) => encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]))
-                .join("&");
-        const res = await fetch("https://h5.haozhuma.com/login.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-            body: toUrlEncoded({
-                username: this.u,
-                password: this.p,
-            }),
+        const param = new URLSearchParams({
+            username: this.u,
+            password: this.p,
         });
+        const res = await fetch(`${this.host}/logins${param ? `?${param}` : ""}`);
         return (this.tk = (await res.json()).token);
     }
 
-    async getPhone(action: "getPhone" | "cancelRecv" = "getPhone") {
+    async getPhone() {
         const param = new URLSearchParams({
-            api: action,
             token: this.tk,
-            sid: this.sid.toString(),
-            Province: "",
-            ascription: "",
+            project_id: this.pid.toString(),
         });
-        const res = await fetch(`${this.host}/sms${param ? `?${param}` : ""}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+        const res = await fetch(`${this.host}/get_mobile${param ? `?${param}` : ""}`);
+        return (this.phone = (await res.json()).mobile);
+    }
+    async freePhone() {
+        const param = new URLSearchParams({
+            token: this.tk,
+            project_id: this.pid.toString(),
         });
-        return (this.phone = (await res.json()).phone);
+        const res = await fetch(`${this.host}/free_mobile${param ? `?${param}` : ""}`);
+        return "ok" === (await res.json()).message;
     }
 
     async receive() {
         const param = new URLSearchParams({
-            api: "getMessage",
             token: this.tk,
-            sid: this.sid.toString(),
-            phone: this.phone,
-            tm: new Date().getTime().toString(),
+            project_id: this.pid.toString(),
+            phone_num: this.phone,
         });
-        const res = await fetch(`${this.host}/sms${param ? `?${param}` : ""}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-        });
-        
-        return (await res.json()).yzm;
+        const res = await fetch(`${this.host}/get_message${param ? `?${param}` : ""}`);
+        return (await res.json()).code;
     }
 }
 
-enum sid {
-    Sfacg = 50896,
+enum pid {
+    Sfacg = 17521,
     Ciweimao = 22439,
+    Ciyuanji = 79538,
 }
 
 export { SmsService };

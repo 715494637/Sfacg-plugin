@@ -1,4 +1,4 @@
-import { SfacgBaseHttp } from "./SfacgBaseHttp";
+import { SfacgBaseHttp } from "./SfacgBaseHttp.js";
 import {
     adBonus,
     adBonusNum,
@@ -32,9 +32,9 @@ import {
     volumeInfos,
     VolumeList,
     welfare,
-} from "./SfacgInterface";
+} from "./SfacgInterface.js";
 
-import { decrypt, getNowFormatDate } from "./SfacgTool";
+import { decrypt, getNowFormatDate } from "./SfacgTool.js";
 
 class SfacgAPI extends SfacgBaseHttp {
     /**
@@ -467,6 +467,7 @@ class SfacgAPI extends SfacgBaseHttp {
             smsAuthCode: smsAuthCode,
             shuMeiId: "",
         });
+        console.log(res)
         return res.data.accountId;
     }
 }

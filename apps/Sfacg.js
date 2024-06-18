@@ -217,7 +217,7 @@ export class Sfacgplugin extends plugin {
     async Regist() {
         const Register = new SfacgRegister();
         const a = await Register.Main(this.e.msg.match(new RegExp("^SF创号(\\d+)"))[1]);
-        this.reply(a)
+        this.reply(JSON.stringify(a))
     }
 
     format = (info, count) => {

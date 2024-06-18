@@ -8,10 +8,10 @@ import {
     JsonHead,
     JsonVolume,
     VolumeList,
-} from "./SfacgInterface";
-import { createRetry } from "./SfacgTool";
-import { SfacgAPI } from "./SfacgAPI";
-import { JsonToTxt } from "./JsonTransformer";
+} from "./SfacgInterface.js";
+import { createRetry } from "./SfacgTool.js";
+import { SfacgAPI } from "./SfacgAPI.js";
+import { JsonToTxt } from "./JsonTransformer.js";
 
 export class SfacgDownloader {
     // protected DB: DataBaseAPI;

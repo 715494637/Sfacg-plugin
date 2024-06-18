@@ -1,11 +1,11 @@
-import { SfacgAPI } from "./SfacgAPI";
-import { SmsService } from "./SmsService";
-import { RandomName } from "./SfacgTool";
-import { SfacgConfig } from "../utils/config";
-import { SupaBase } from "../utils/supabase";
-import { userInfo } from "./SfacgInterface";
+import { SfacgAPI } from "./SfacgAPI.js";
+import { SmsService } from "./SmsService.js";
+import { RandomName } from "./SfacgTool.js";
+import { SfacgConfig } from "../utils/config.js";
+import { SupaBase } from "../utils/supabase.js";
 
 class SfacgRegister {
+    timeout: number;
     private Sfacg: SfacgAPI;
     private SmsApi: SmsService;
     private pwd: string;
@@ -16,6 +16,7 @@ class SfacgRegister {
     constructor() {
         this.Sfacg = new SfacgAPI();
         this.SmsApi = new SmsService();
+        this.timeout = SfacgConfig.SMS_TIMEOUT;
         this.pwd = SfacgConfig.REGIST_PASSWORD;
     }
 
@@ -49,25 +50,32 @@ class SfacgRegister {
     }
 
     async GetCode() {
-        return new Promise(async (r, j) => {
+        const tp = new Promise((r, j) =>
+            setTimeout(async () => {
+                await this.SmsApi.freePhone();
+                j("获取验证码超时,已释放手机号");
+            }, this.timeout * 1000)
+        );
+        const Gp = new Promise(async (r, j) => {
             const sd = await this.Sfacg.sendCode(this.phone);
+            console.log(sd);
             if (!sd) {
                 j("发送验证码失败");
             } else {
-                new Promise((r, j) => {
-                    const get = async () => {
-                        const code = await this.SmsApi.receive();
-                        if (!code) {
-                            setTimeout(get, 5000);
-                        } else {
-                            this.code = code;
-                            r(code);
-                        }
-                    };
-                    get();
-                });
+                const get = async () => {
+                    const code = await this.SmsApi.receive();
+                    // console.log(code);
+                    if (!code) {
+                        setTimeout(get, 5000);
+                    } else {
+                        this.code = code;
+                        r(code);
+                    }
+                };
+                get();
             }
         });
+        return Promise.race([Gp, tp]);
     }
 
     async NewRegist() {
@@ -79,13 +87,13 @@ class SfacgRegister {
                     cookie: i.cookie,
                     couponsRemain: i.couponsRemain,
                     fireMoneyRemain: i.fireMoneyRemain,
-                    lastCheckIn: i.lastCheckIn,
                     nickName: i.nickName,
                     passWord: i.passWord,
-                    userName: i.userName,
+                    userName: i.phoneNum,
                     vipLevel: i.vipLevel,
                 };
             };
+            console.log(this.pwd, this.name, this.phone, this.code);
             const id = await this.Sfacg.regist(this.pwd, this.name, this.phone, this.code);
             if (!id) {
                 j("注册失败\n" + [this.pwd, this.name, this.phone, this.code]);
@@ -93,16 +101,18 @@ class SfacgRegister {
                 await this.Sfacg.login(this.phone, this.pwd);
                 this.Sfacg.NewAccountFavBonus();
                 this.Sfacg.NewAccountFollowBonus();
-                const { data, error } = await SupaBase.from("Sfacg-Accounts").upsert(t({
-                    ...(await this.Sfacg.userInfo()),
-                    ...(await this.Sfacg.userMoney()),
-                    cookie: this.Sfacg.GetCookie(),
-                    passWord: this.pwd,
-                }));
+                const { data, error } = await SupaBase.from("Sfacg-Accounts").upsert(
+                    t({
+                        ...(await this.Sfacg.userInfo()),
+                        ...(await this.Sfacg.userMoney()),
+                        userName: this.phone,
+                        cookie: this.Sfacg.GetCookie(),
+                        passWord: this.pwd,
+                    })
+                );
                 if (error) {
                     j(error);
                 } else {
-                    console.log(data);
                     r(data);
                 }
             }
@@ -127,16 +137,14 @@ class SfacgRegister {
         for (let i = 1; i <= num; i++) {
             const p = new Promise(async (r, j) => {
                 try {
-                    console.log(num);
-                    await this.GetAvalibleName();
-                    console.log(this.name);
-                    await this.GetAvaliblePhone();
-                    console.log(this.phone);
-                    await this.GetCode();
-                    console.log(this.code);
-                    const re = await this.NewRegist();
+                    const reg = new SfacgRegister();
+                    console.log(i);
+                    await reg.GetAvalibleName();
+                    await reg.GetAvaliblePhone();
+                    await reg.GetCode();
+                    await reg.NewRegist();
                     update();
-                    r(re);
+                    r(reg.phone);
                 } catch (e) {
                     j(e);
                 }
