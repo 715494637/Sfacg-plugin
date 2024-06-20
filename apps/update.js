@@ -16,7 +16,7 @@ let uping = false;
 export class Update extends plugin {
     constructor() {
         super({
-            name: "chatgpt更新插件",
+            name: "Sfacg更新插件",
             event: "message",
             priority: 1000,
             rule: [
@@ -29,7 +29,7 @@ export class Update extends plugin {
     }
 
     /**
-     * rule - 更新chatgpt插件
+     * rule - 更新Sfacg-plugin
      * @returns
      */
     async update() {
@@ -61,7 +61,7 @@ export class Update extends plugin {
     }
 
     /**
-     * chatgpt插件更新函数
+     * Sfacg-plugin更新函数
      * @param {boolean} isForce 是否为强制更新
      * @returns
      */
