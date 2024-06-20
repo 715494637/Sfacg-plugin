@@ -10,7 +10,7 @@ import { Gfs } from "icqq";
  */
 let Options = [];
 let BookMap = new Map();
-let BookIDMap = new Map();
+let AlbumMap = new Map();
 let voteResults = new Map();
 
 export class Sfacgplugin extends plugin {
@@ -65,6 +65,18 @@ export class Sfacgplugin extends plugin {
                     /** 执行方法 */
                     fnc: "Regist",
                 },
+                {
+                    /** 命令正则匹配 */
+                    reg: "(.*)---(.*)",
+                    /** 执行方法 */
+                    fnc: "Login",
+                },
+                {
+                    /** 命令正则匹配 */
+                    reg: "^提有声(.*)",
+                    /** 执行方法 */
+                    fnc: "PublishAlubum",
+                },
             ],
         });
     }
@@ -73,11 +85,11 @@ export class Sfacgplugin extends plugin {
         await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
         this.reply("SF账号缓存已删除");
     }
-    async UploadBook(id, Sfcookie) {
-        const downloader = new SfacgDownloader(id, this.e.nickname, Sfcookie);
+    async UploadBook(id) {
+        const downloader = new SfacgDownloader(id, this.e.nickname, await this.isLogin());
         try {
             const txt = await downloader.TxtMake();
-            const gfs = new Gfs(this.e.bot, 965588349);
+            const gfs = new Gfs(this.e.bot, this.e.group_id);
             await gfs.upload(Buffer.from(txt.data), undefined, `${txt.novelName}.txt`);
         } catch (e) {
             await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
@@ -85,19 +97,25 @@ export class Sfacgplugin extends plugin {
         }
     }
 
-    GetAccount = async () => {
+    async isLogin() {
+        const UserSf = await redis.get(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
+        if (!UserSf) {
+            this.reply(`当前状态：未登录\n\n可【私聊发送】"账号---密码"登录`);
+        } else {
+            this.reply(`当前状态：已登录\n\n可提取【已购买】章节`);
+        }
+        return UserSf;
+    }
+
+    async Login() {
         if (this.e.group_id) {
             return;
         }
         let Sfcookie;
-        this.finish("GetAccount");
-        let accArray = this.e.msg.replaceAll(`"`, "").split("---");
-        if (accArray.length !== 2) {
-            this.reply("SF账号格式错误");
-            return;
-        }
-        const u = accArray[0];
-        const p = accArray[1];
+        const m = this.e.msg.match(new RegExp("(.*)---(.*)"));
+        const u = m[1];
+        const p = m[2];
+        console.log(u, p);
         const Sfacg = new SfacgAPI();
         try {
             if (u === "cookie") {
@@ -108,38 +126,63 @@ export class Sfacgplugin extends plugin {
                 await redis.set(`Yunzai:Sfacg:cookie:${this.e.user_id}`, Sfcookie);
                 this.reply("SF登录成功");
             }
-            await this.UploadBook(BookIDMap.get(this.e.user_id).novelId, Sfcookie);
         } catch (e) {
             await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
             this.reply("SF登录失败\n" + JSON.stringify(e));
         }
-    };
+    }
 
-    GetBookId = async () => {
-        this.finish("GetBookId");
+    async PublishAlubum() {
+        const n = this.e.msg.match(new RegExp("^提有声(.*)"))[1];
+        if (!n) {
+            return this.reply(`请发送：提有声"有声书名称"`);
+        }
+        const b = await this.noCookie.SearchAlbum(n);
+        if (b.length === 0) {
+            return this.reply("未搜到有声书");
+        }
+        AlbumMap.set(this.e.user_id, b);
+        this.reply(
+            Common.makeForwardMsg(this.e, [
+                "请发送序号",
+                b.map((s, i) => `${i + 1}. ${s.name}`).join("\n"),
+            ])
+        );
+        this.setContext("PublishAlubum_2", false);
+    }
+
+    PublishAlubum_2 = async () => {
+        this.finish("PublishAlubum_2");
         let index = Number(this.e.msg) - 1;
-        if (!(index >= 0 && index < BookMap.get(this.e.user_id).length)) {
+        const albumArray = AlbumMap.get(this.e.user_id);
+        if (!(index >= 0 && index < albumArray.length)) {
             this.reply("序号错误");
             return;
         }
-        BookIDMap.set(this.e.user_id, BookMap.get(this.e.user_id)[index]);
-        const UserSf = await redis.get(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
-        if (UserSf) {
-            await this.UploadBook(BookIDMap.get(this.e.user_id).novelId, UserSf);
-            this.reply(`已有账号凭证缓存，本次无需登录\n若要更换账号请发送"删除缓存"`);
-        } else {
-            this.setContext("GetAccount", false);
-            this.reply(
-                `请【私聊发送】SF账号\n格式如：\n"12345678---abc1234"\n"cookie---xxx"`,
-                true
-            );
-            this.reply("---");
+        this.noCookie.SetCookie(await this.isLogin());
+        const data = await this.noCookie.Getalbum(albumArray[index].albumId);
+        let ob = {}; // 确保ob被初始化为一个空对象
+        for (let i of data) {
+            // 修正：使用正确的方式来引用volumeId
+            if (!ob[i.volumeId]) {
+                ob[i.volumeId] = [];
+            }
+            // 这里需要使用i.volumeId而不是直接使用未定义的volumeId
+            ob[i.volumeId].push(`章节名称: ${i.chapterTitle}
+是否VIP：${i.isVip ? "是" : "否"}
+价格：${i.expand.originNeedFireMoney}
+音频链接：${i.fileName}
+`);
+        }
+        for (let key in ob) {
+            this.reply(Common.makeForwardMsg(this.e, ob[key], `卷id：${key}`));
         }
     };
+
     async PublishBook() {
         const n = this.e.msg.match(new RegExp("^提书(.*)"))[1];
         if (!n) {
-            return this.reply(`请发送提书"小说名称"`);
+            return this.reply(`请发送：提书"小说名称"`);
         }
         const b = await this.noCookie.searchInfos(n);
         if (b.length === 0) {
@@ -152,8 +195,20 @@ export class Sfacgplugin extends plugin {
                 b.map((s, i) => `${i + 1}. ${s.novelName}---${s.authorName}`).join("\n"),
             ])
         );
-        this.setContext("GetBookId", false);
+        this.setContext("PublishBook_2", false);
     }
+
+    PublishBook_2 = async () => {
+        this.finish("PublishBook_2");
+        let index = Number(this.e.msg) - 1;
+        const bookArray = BookMap.get(this.e.user_id);
+        if (!(index >= 0 && index < bookArray.length)) {
+            this.reply("序号错误");
+            return;
+        }
+        await this.UploadBook(bookArray[index].novelId);
+    };
+
     //
     async InitVote() {
         const Sfacg = new SfacgAPI();
@@ -217,7 +272,7 @@ export class Sfacgplugin extends plugin {
     async Regist() {
         const Register = new SfacgRegister();
         const a = await Register.Main(this.e.msg.match(new RegExp("^SF创号(\\d+)"))[1]);
-        this.reply(JSON.stringify(a))
+        this.reply(JSON.stringify(a));
     }
 
     format = (info, count) => {

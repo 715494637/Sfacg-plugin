@@ -2,6 +2,9 @@ import { SfacgBaseHttp } from "./SfacgBaseHttp.js";
 import {
     adBonus,
     adBonusNum,
+    albumContent,
+    Albums,
+    AlbumSearch,
     androiddeviceinfos,
     AuthorInfo,
     bookshelfInfos,
@@ -268,6 +271,23 @@ class SfacgAPI extends SfacgBaseHttp {
         return res.status.httpCode == 201;
     }
 
+    async SearchAlbum(novelName: string, page: number = 0, size: number = 40) {
+        const res = await this.get<AlbumSearch>(`/search/albums/result/new`, {
+            page: page,
+            q: novelName,
+            size: size,
+            sort: "hot",
+        });
+        return res.albums as Albums[];
+    }
+
+    async Getalbum(albumId: number) {
+        const res = await this.get<albumContent[]>(`/albums/${albumId}/chaps`, {
+            expand: "originNeedFireMoney",
+        });
+        return res;
+    }
+
     // TaskTime Below !
     //。。。(> . <)。。。
 
@@ -457,7 +477,7 @@ class SfacgAPI extends SfacgBaseHttp {
         nickName: string,
         phone: string,
         smsAuthCode: string
-    ): Promise<number> {
+    ): Promise<any> {
         let res = await this.post<regist>("/user", {
             passWord: passWord,
             nickName: nickName,
@@ -467,8 +487,8 @@ class SfacgAPI extends SfacgBaseHttp {
             smsAuthCode: smsAuthCode,
             shuMeiId: "",
         });
-        console.log(res)
-        return res.data.accountId;
+        console.log(res);
+        return res.data;
     }
 }
 

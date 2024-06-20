@@ -3,7 +3,7 @@
 /**
  * 小说章节内容信息
  */
-interface contentInfos {
+export interface contentInfos {
     chapId: number; // 章节ID
     novelId: number; // 小说ID
     volumeId: number; // 卷ID
@@ -24,7 +24,7 @@ interface contentInfos {
 /**
  * 小说章节内容的扩展信息
  */
-interface contentInfos_Expand {
+export interface contentInfos_Expand {
     needFireMoney: number; // 所需火币
     originNeedFireMoney: number; // 原始所需火币
     content: string; // 内容
@@ -40,7 +40,7 @@ interface contentInfos_Expand {
 /**
  * 小说信息的扩展信息
  */
-interface novelInfo_Expand {
+export interface novelInfo_Expand {
     chapterCount: number;
     bigBgBanner: string;
     bigNovelCover: string;
@@ -57,7 +57,7 @@ interface novelInfo_Expand {
 /**
  * 作者信息
  */
-interface AuthorInfo {
+export interface AuthorInfo {
     authorId: number;
     accountId: number;
     authorName: string;
@@ -74,7 +74,7 @@ interface AuthorInfo {
 /**
  * 系统标签
  */
-interface SysTags {
+export interface SysTags {
     sysTagId: number; // 系统标签ID
     tagName: string; // 标签名称
 }
@@ -82,7 +82,7 @@ interface SysTags {
 /**
  * 用户信息
  */
-interface userInfo {
+export interface userInfo {
     userName: string; // 用户名
     countryCode: number; // 国家代码
     nickName: string; // 昵称
@@ -100,7 +100,7 @@ interface userInfo {
 /**
  * 用户余额
  */
-interface userMoney {
+export interface userMoney {
     rmbCost: number; // 真实花费
     fireMoneyUsed: number; // 已使用火币
     fireMoneyRemain: number; // 未使用的火币
@@ -111,7 +111,7 @@ interface userMoney {
 /**
  * 代币过期时间信息
  */
-interface expireInfo {
+export interface expireInfo {
     coupon: number; // 代币
     usedCoupon: number; // 已使用的代币
     getDate: string; // 获取时间
@@ -124,7 +124,7 @@ interface expireInfo {
 /**
  * 小说目录详情
  */
-interface volumeInfos {
+export interface volumeInfos {
     novelId: number; // 小说ID
     lastUpdateTime: string; // 最后更新时间
     volumeList: VolumeList[]; // 卷列表
@@ -133,7 +133,7 @@ interface volumeInfos {
 /**
  * 卷列表
  */
-interface VolumeList {
+export interface VolumeList {
     volumeId: number; // 卷ID
     title: string; // 标题
     sno: number; // 序列号
@@ -143,7 +143,7 @@ interface VolumeList {
 /**
  * 章节信息
  */
-interface chapter {
+export interface chapter {
     chapId: number; // 章节ID
     novelId: number; // 小说ID
     volumeId: number; // 卷ID
@@ -168,7 +168,7 @@ interface chapter {
 /**
  * 小说基础信息
  */
-interface novelBaseInfo {
+export interface novelBaseInfo {
     authorId: number; // 作者ID
     lastUpdateTime: string; // 最后更新时间
     markCount: number; // 标记数
@@ -192,14 +192,75 @@ interface novelBaseInfo {
 /**
  *  小说详情
  */
-interface novelInfo extends novelBaseInfo {
+export interface novelInfo extends novelBaseInfo {
     expand: novelInfo_Expand; // 扩展信息
+}
+/**
+ * 有声书列表
+ */
+export interface Albums {
+    albumId: number;
+    novelId: number;
+    authorId: number;
+    latestChapterId: number;
+    visitTimes: number;
+    name: string;
+    lastUpdateTime: string;
+    coverBig: string;
+    coverSmall: string;
+    coverMedium: string;
+    isFinished: string;
+    weight: number;
+    Highlight: Array<string>;
+}
+
+/**
+ * 有声书搜索信息
+ */
+export interface AlbumSearch {
+    novels: Array<unknown>;
+    comics: Array<unknown>;
+    albums: Array<Albums>;
+    booklist: Array<unknown>;
+}
+
+/**
+ * 有声书内容扩展
+ */
+export interface albumContent_Expand {
+    needFireMoney: number;
+    originNeedFireMoney: number;
+    monthCardFireMoney: number;
+    willBuyMonthCardFireMoney: number;
+    willBuyMonthCardNeedFireMoney: number;
+}
+
+/**
+ * 有声书内容
+ */
+export interface albumContent {
+    chapterId: number;
+    albumId: number;
+    volumeId: number;
+    seasonID: number;
+    novelChapterId: number;
+    visitTimes: number;
+    fileSize: number;
+    duration: number;
+    fileName: string; //下载链接
+    chapterTitle: string;
+    cover: string;
+    intro: string;
+    sno: number;
+    isVip: boolean;
+    expand: albumContent_Expand;
+    LastUpdateDateTime: string;
 }
 
 /**
  * 书架信息
  */
-interface bookshelfInfos {
+export interface bookshelfInfos {
     accountId: number; // 账号ID
     pocketId: number; // 口袋ID
     name: string; // 书架名称
@@ -214,7 +275,7 @@ interface bookshelfInfos {
 /**
  *  书架的扩展信息，
  */
-interface bookshelfInfos_Expand {
+export interface bookshelfInfos_Expand {
     novels?: bookshelfInfos_Expand_novel[];
     albums?: bookshelfInfos_Expand_album[]; // 专辑数组
 }
@@ -222,7 +283,7 @@ interface bookshelfInfos_Expand {
 /**
  * 书架扩展信息中的小说
  */
-interface bookshelfInfos_Expand_novel extends novelBaseInfo {
+export interface bookshelfInfos_Expand_novel extends novelBaseInfo {
     expand: any; // 更多扩展信息
     isSticky: boolean; // 是否置顶
     stickyDateTime?: any; // 置顶时间
@@ -232,7 +293,7 @@ interface bookshelfInfos_Expand_novel extends novelBaseInfo {
 /**
  * 搜索信息的中的novel
  */
-interface searchInfos_novel extends novelBaseInfo {
+export interface searchInfos_novel extends novelBaseInfo {
     weight: number; // 权重
     Highlight: string[]; // 高亮显示的字段数组
 }
@@ -240,7 +301,7 @@ interface searchInfos_novel extends novelBaseInfo {
 /**
  * 书架专辑信息
  */
-interface bookshelfInfos_Expand_album {
+export interface bookshelfInfos_Expand_album {
     albumId: number; // 专辑ID
     novelId: number; // 小说ID
     authorId: number; // 作者ID
@@ -261,7 +322,7 @@ interface bookshelfInfos_Expand_album {
 /**
  * 小说分类信息
  */
-interface typeInfo {
+export interface typeInfo {
     typeId: number;
     typeName: string;
     expand: any; // 扩展信息
@@ -271,7 +332,7 @@ interface typeInfo {
 /**
  * 描述标签信息的接口
  */
-interface tags {
+export interface tags {
     sysTagId: number; // 系统标签ID
     refferTimes?: number; // 引用次数
     tagName: string; // 标签名称
@@ -286,7 +347,7 @@ interface tags {
 /**
  * 描述搜索信息的接口
  */
-interface searchInfos {
+export interface searchInfos {
     novels: searchInfos_novel[]; // 小说搜索结果数组
     comics: any; // 漫画搜索结果
     albums: any; // 专辑搜索结果
@@ -296,7 +357,7 @@ interface searchInfos {
 /**
  * 广告任务信息
  */
-interface adBonusNum {
+export interface adBonusNum {
     taskId: number; // 任务ID
     requireNum: number; // 需要完成的数量
     completeNum: number; // 已完成的数量
@@ -322,7 +383,7 @@ interface adBonusNum {
 /**
  * 签到奖励
  */
-interface newSign {
+export interface newSign {
     status: { httpCode: number; errorCode: number; msgType: number; msg: object };
     data: { num: number; image: string; name: string }[];
 }
@@ -330,7 +391,7 @@ interface newSign {
 /**
  * 任务信息
  */
-interface tasks {
+export interface tasks {
     recordId: number;
     taskId: number;
     requireNum: number;
@@ -356,7 +417,7 @@ interface tasks {
 /**
  * 定义 Status 接口来表示 status 的结构
  */
-interface Status {
+export interface Status {
     httpCode: number;
     errorCode: number;
     msgType: number;
@@ -367,21 +428,21 @@ interface Status {
 /**
  * 定义 Response 接口来表示整个响应的结构
  */
-interface Response {
+export interface Response {
     status: Status;
     data: object;
 }
 
-type adBonus = Response;
-type claimTask = Response;
-type readTime = Response;
-type share = Response;
-type order = Response;
+export type adBonus = Response;
+export type claimTask = Response;
+export type readTime = Response;
+export type share = Response;
+export type order = Response;
 
 /**
  * 任务奖励
  */
-interface taskBonus {
+export interface taskBonus {
     status: { httpCode: number; errorCode: number; msgType: number; msg: object };
     data: {
         ticketNum: number;
@@ -399,25 +460,25 @@ interface taskBonus {
 /**
  * { "status": { "httpCode": 201, "errorCode": 200, "msgType": 0, "msg": null }, "data": null }
  */
-type sendCode = Response;
-type NewAccountFollowBonus = Response;
-type NewAccountFavBonus = Response;
-type welfare = Response;
-type androiddeviceinfos = Response;
+export type sendCode = Response;
+export type NewAccountFollowBonus = Response;
+export type NewAccountFavBonus = Response;
+export type welfare = Response;
+export type androiddeviceinfos = Response;
 
 /**
  * {"status":{"httpCode":200,"errorCode":200,"msgType":0,"msg":null},"data":null}
  *
  * {"status":{"httpCode":422,"errorCode":727,"msgType":0,"msg":"手机验证码错误"},"data":null}
  */
-type codeverify = Response;
+export type codeverify = Response;
 
 /**
  * { "status": { "httpCode": 200, "errorCode": 200, "msgType": 0, "msg": null }, "data": { "availableName": "hehdvs3", "nickName": { "valid": true, "msg": "success" } } }
  *
  * {"status":{"httpCode":200,"errorCode":200,"msgType":0,"msg":null},"data":{"availableName":"hehdvs3","nickName":{"valid":false,"msg":"该昵称存在标点符号，请修改"}}}
  */
-interface nameAvalible {
+export interface nameAvalible {
     status: { httpCode: number; errorCode: number; msgType: number; msg: object };
     data: { availableName: string; nickName: { valid: boolean; msg: string } };
 }
@@ -425,7 +486,7 @@ interface nameAvalible {
 /**
  * {"status":{"httpCode":201,"errorCode":200,"msgType":0,"msg":null},"data":{"accountId":9823829}}
  */
-interface regist {
+export interface regist {
     status: { httpCode: number; errorCode: number; msgType: number; msg: object };
     data: { accountId: number };
 }
@@ -433,12 +494,12 @@ interface regist {
 /**
  * JsonBook
  */
-interface JsonBook extends JsonHead, JsonContent {}
+export interface JsonBook extends JsonHead, JsonContent {}
 
 /**
  * Json头
  */
-interface JsonHead {
+export interface JsonHead {
     title: string;
     author: string;
     publisher: string;
@@ -450,14 +511,14 @@ interface JsonHead {
 /**
  * Json内容
  */
-interface JsonContent {
+export interface JsonContent {
     content: JsonVolume[];
 }
 
 /**
  * 卷Json
  */
-interface JsonVolume {
+export interface JsonVolume {
     vtitle: string;
     chapters: JsonChapter[];
 }
@@ -466,7 +527,7 @@ interface JsonVolume {
 /**
  * 章节Json
  */
-interface JsonChapter {
+export interface JsonChapter {
     ctitle: string;
     data: string;
 }
@@ -475,7 +536,7 @@ interface JsonChapter {
 /**
  * 批次,试图cf（已弃用）
  */
-interface Batche {
+export interface Batche {
     vtitle: string;
     chapId: number;
     ctitle: string;
@@ -488,59 +549,58 @@ interface Batche {
 /**
  * SfacgDownloader初始构造
  */
-interface DownLoadInit {
+export interface DownLoadInit {
     novelId: number;
     publisher: string;
     Sfcookie?: string;
 }
 
-
-export {
-    contentInfos,
-    contentInfos_Expand,
-    novelInfo_Expand,
-    AuthorInfo,
-    SysTags,
-    userInfo,
-    userMoney,
-    expireInfo,
-    volumeInfos,
-    VolumeList,
-    chapter,
-    novelInfo,
-    novelBaseInfo,
-    bookshelfInfos,
-    bookshelfInfos_Expand,
-    bookshelfInfos_Expand_novel,
-    searchInfos_novel,
-    bookshelfInfos_Expand_album,
-    typeInfo,
-    tags,
-    searchInfos,
-    adBonusNum,
-    newSign,
-    tasks,
-    Status,
-    Response,
-    adBonus,
-    claimTask,
-    readTime,
-    share,
-    order,
-    taskBonus,
-    sendCode,
-    NewAccountFollowBonus,
-    NewAccountFavBonus,
-    welfare,
-    androiddeviceinfos,
-    codeverify,
-    nameAvalible,
-    regist,
-    JsonBook,
-    JsonHead,
-    JsonContent,
-    JsonVolume,
-    JsonChapter,
-    Batche,
-  DownLoadInit,
-};
+// export {
+//     contentInfos,
+//     contentInfos_Expand,
+//     novelInfo_Expand,
+//     AuthorInfo,
+//     SysTags,
+//     userInfo,
+//     userMoney,
+//     expireInfo,
+//     volumeInfos,
+//     VolumeList,
+//     chapter,
+//     novelInfo,
+//     novelBaseInfo,
+//     bookshelfInfos,
+//     bookshelfInfos_Expand,
+//     bookshelfInfos_Expand_novel,
+//     searchInfos_novel,
+//     bookshelfInfos_Expand_album,
+//     export typeInfo,
+//     tags,
+//     searchInfos,
+//     adBonusNum,
+//     newSign,
+//     tasks,
+//     Status,
+//     Response,
+//     adBonus,
+//     claimTask,
+//     readTime,
+//     share,
+//     order,
+//     taskBonus,
+//     sendCode,
+//     NewAccountFollowBonus,
+//     NewAccountFavBonus,
+//     welfare,
+//     androiddeviceinfos,
+//     codeverify,
+//     nameAvalible,
+//     regist,
+//     JsonBook,
+//     JsonHead,
+//     JsonContent,
+//     JsonVolume,
+//     JsonChapter,
+//     Batche,
+//     DownLoadInit,
+// };
