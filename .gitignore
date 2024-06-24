@@ -17,3 +17,6 @@ logs
 .idea/
 .vscode/
 *.sw*
+
+# 配置文件
+config.yaml
