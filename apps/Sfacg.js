@@ -81,9 +81,6 @@ export class Sfacgplugin extends plugin {
         });
     }
 
-    async test() {
-        
-    }
     async delRedis() {
         await redis.del(`Yunzai:Sfacg:cookie:${this.e.user_id}`);
         this.reply("SF账号缓存已删除");
