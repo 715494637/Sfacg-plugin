@@ -6,8 +6,8 @@ export class GroupSync extends plugin {
 
     constructor() {
         super({
-            name: "Sfacg-plugin",
-            dsc: "菠萝包轻小说插件",
+            name: "群管",
+            dsc: "群管插件",
             /** https://oicqjs.github.io/oicq/#events */
             event: "message",
             priority: 5000,
