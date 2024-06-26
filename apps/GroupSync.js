@@ -3,7 +3,7 @@ import { SfacgAPI } from "../lib/SfacgAPI.js";
 
 export class GroupSync extends plugin {
     noCookie = new SfacgAPI();
-    Group = new Group(Bot, this.e.group_id);
+
     constructor() {
         super({
             name: "Sfacg-plugin",
@@ -23,6 +23,7 @@ export class GroupSync extends plugin {
     }
 
     async SetTitle() {
-        Group.SetTitle();
+        const g = new Group(Bot, this.e.group_id);
+        g.SetTitle();
     }
 }
