@@ -101,20 +101,21 @@ class SfacgRegister {
             }
             this.Sfacg.NewAccountFavBonus();
             this.Sfacg.NewAccountFollowBonus();
-            const { data, error } = await SupaBase.from("Sfacg-Accounts").upsert(
-                t({
-                    ...(await this.Sfacg.userInfo()),
-                    ...(await this.Sfacg.userMoney()),
-                    userName: this.phone,
-                    cookie: this.Sfacg.GetCookie(),
-                    passWord: this.pwd,
-                })
-            );
-            if (error) {
-                j(error);
-            } else {
-                r(data);
-            }
+
+            // const { data, error } = await SupaBase.from("Sfacg-Accounts").upsert(
+            //     t({
+            //         ...(await this.Sfacg.userInfo()),
+            //         ...(await this.Sfacg.userMoney()),
+            //         userName: this.phone,
+            //         cookie: this.Sfacg.GetCookie(),
+            //         passWord: this.pwd,
+            //     })
+            // );
+            // if (error) {
+            //     j(error);
+            // } else {
+            //     r(data);
+            // }
         });
     }
 

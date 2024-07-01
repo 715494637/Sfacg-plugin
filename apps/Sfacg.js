@@ -2,6 +2,7 @@ import plugin from "../../../lib/plugins/plugin.js";
 import { SfacgAPI } from "../lib/SfacgAPI.js";
 import { SfacgDownloader } from "../lib/SfacgDownload.js";
 import { SfacgRegister } from "../lib/SfacgRegist.js";
+import { SfacgTasker } from "../lib/SfacgTasker.js";
 import Common from "../../../lib/common/common.js";
 import { Gfs } from "icqq";
 
@@ -77,8 +78,19 @@ export class Sfacgplugin extends plugin {
                     /** 执行方法 */
                     fnc: "PublishAlubum",
                 },
+                {
+                    /** 命令正则匹配 */
+                    reg: "^dev",
+                    /** 执行方法 */
+                    fnc: "dev",
+                },
             ],
         });
+    }
+
+    async dev() {
+        const t = new SfacgTasker("", "13696458853", "dddd1111", "");
+        await this.reply(JSON.stringify(await t.Dev()));
     }
 
     async delRedis() {
@@ -300,9 +312,6 @@ export class Sfacgplugin extends plugin {
                 .join("\n") + "\n以上均为5折后的价格"
         );
     }
-
-
-
 
     // async files() {
     //         const chineseDescriptions = (file) => {

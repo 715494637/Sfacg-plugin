@@ -16,3 +16,8 @@ export function JsonToTxt(Json: JsonBook) {
     });
     return txtContent;
 }
+
+export function JsonToEpub(Json: JsonBook) { 
+    
+}
+
